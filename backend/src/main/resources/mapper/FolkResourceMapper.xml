@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fjdialect.mapper.FolkResourceMapper">
+
+    <select id="selectByCityCode" resultType="com.fjdialect.entity.FolkResource">
+        SELECT * FROM folk_resource
+        WHERE city_code = #{cityCode}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByType" resultType="com.fjdialect.entity.FolkResource">
+        SELECT * FROM folk_resource
+        WHERE type = #{type}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
