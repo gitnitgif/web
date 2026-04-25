@@ -509,7 +509,7 @@ onBeforeUnmount(() => {
 .back-btn {
   padding: 10px 20px;
   background: white;
-  color: #667eea;
+  color: #000000;
   border: none;
   border-radius: 5px;
   font-weight: 600;
@@ -547,7 +547,7 @@ onBeforeUnmount(() => {
 
 .city-tag {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   padding: 5px 15px;
   border-radius: 20px;
@@ -560,10 +560,10 @@ onBeforeUnmount(() => {
 }
 
 .info-section h3 {
-  color: #667eea;
+  color: #000000;
   font-size: 20px;
   margin-bottom: 15px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #000000;
   padding-bottom: 10px;
 }
 
@@ -588,7 +588,7 @@ onBeforeUnmount(() => {
 
 .info-section li::before {
   content: '•';
-  color: #667eea;
+  color: #000000;
   position: absolute;
   left: 0;
   font-weight: bold;
@@ -613,7 +613,7 @@ onBeforeUnmount(() => {
 .vocabulary-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .word-chinese {
@@ -624,7 +624,7 @@ onBeforeUnmount(() => {
 }
 
 .word-dialect {
-  color: #667eea;
+  color: #000000;
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 5px;
@@ -645,11 +645,11 @@ onBeforeUnmount(() => {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #000000;
 }
 
 .example-dialect {
-  color: #667eea;
+  color: #000000;
   font-weight: 600;
   margin-bottom: 5px;
   font-size: 16px;
@@ -665,10 +665,10 @@ onBeforeUnmount(() => {
 }
 
 .culture-section h3 {
-  color: #667eea;
+  color: #000000;
   font-size: 20px;
   margin-bottom: 15px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #000000;
   padding-bottom: 10px;
 }
 
@@ -684,10 +684,10 @@ onBeforeUnmount(() => {
 }
 
 .culture-gallery h3 {
-  color: #667eea;
+  color: #000000;
   font-size: 20px;
   margin-bottom: 20px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #000000;
   padding-bottom: 10px;
 }
 
@@ -731,7 +731,7 @@ onBeforeUnmount(() => {
   border: none;
   font-size: 24px;
   font-weight: bold;
-  color: #667eea;
+  color: #000000;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;

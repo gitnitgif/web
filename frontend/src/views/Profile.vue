@@ -626,7 +626,7 @@ const handleLogout = () => {
 
 .back-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .back-btn:hover {
@@ -668,7 +668,7 @@ const handleLogout = () => {
 }
 
 .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   padding: 25px 30px;
   display: flex;
   justify-content: space-between;
@@ -726,7 +726,7 @@ const handleLogout = () => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .disabled-input {
@@ -760,7 +760,7 @@ const handleLogout = () => {
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -793,7 +793,7 @@ const handleLogout = () => {
 .stat-number {
   font-size: 32px;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   margin-bottom: 8px;
 }
 
@@ -834,7 +834,7 @@ const handleLogout = () => {
 }
 
 .audio-tabs .tab-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-color: transparent;
 }
@@ -977,7 +977,7 @@ const handleLogout = () => {
 }
 
 .btn-reupload {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
 }
 
@@ -1004,7 +1004,7 @@ const handleLogout = () => {
 .quiz-stats .stat-number {
   font-size: 32px;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   margin-bottom: 8px;
 }
 
@@ -1046,7 +1046,7 @@ const handleLogout = () => {
 }
 
 .quiz-tabs .tab-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-color: transparent;
 }
@@ -1074,7 +1074,7 @@ const handleLogout = () => {
 }
 
 .quiz-item:hover {
-  border-color: #667eea;
+  border-color: #000000;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
 }
 

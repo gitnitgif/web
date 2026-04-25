@@ -90,13 +90,20 @@
           <p class="resource-content">{{ resource.content }}</p>
           
           <div class="resource-footer">
-            <span class="resource-city">📍 {{ getCityName(resource.cityCode) }}</span>
-            <span class="resource-views">👁 {{ resource.viewCount }} 次查看</span>
+            <span class="resource-city"> {{ getCityName(resource.cityCode) }}</span>
+            <span class="resource-views"> {{ resource.viewCount }} 次查看</span>
           </div>
           
           <div class="resource-actions">
-            <button @click="playAudio(resource)" class="action-btn" v-if="resource.audioUrl">
-              🔊 播放音频
+            <button @click="playAudio(resource)" class="action-btn primary" :class="{ playing: isPlaying(resource) }">
+              <svg v-if="isPlaying(resource)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <rect x="6" y="4" width="4" height="16"/>
+                <rect x="14" y="4" width="4" height="16"/>
+              </svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <span>{{ isPlaying(resource) ? '暂停播放' : '播放音频' }}</span>
             </button>
           </div>
         </div>
@@ -124,6 +131,10 @@ const username = computed(() => userStore.username || '用户')
 const resources = ref([])
 const currentCategory = ref('all')
 const currentDifficulty = ref('all')
+
+// 音频播放相关
+const playingAudio = ref(null)
+const playingId = ref(null)
 
 const cityMap = {
   fuzhou: '福州',
@@ -173,8 +184,74 @@ const filterByDifficulty = (difficulty) => {
 }
 
 const playAudio = (resource) => {
-  // TODO: 实现音频播放
-  alert('播放音频：' + resource.title)
+  if (!resource || !resource.audioUrl) {
+    alert('该资源暂无音频')
+    return
+  }
+  
+  // 如果正在播放当前资源，则暂停
+  if (playingId.value === resource.id && playingAudio.value) {
+    playingAudio.value.pause()
+    playingAudio.value = null
+    playingId.value = null
+    return
+  }
+  
+  // 如果有其他音频在播放，先停止
+  if (playingAudio.value) {
+    playingAudio.value.pause()
+    playingAudio.value = null
+  }
+  
+  const audio = new Audio(resource.audioUrl)
+  audio.play()
+    .then(() => {
+      playingAudio.value = audio
+      playingId.value = resource.id
+      
+      audio.addEventListener('ended', () => {
+        playingAudio.value = null
+        playingId.value = null
+      })
+      
+      audio.addEventListener('error', (error) => {
+        console.error('播放失败:', error)
+        let errorMsg = '播放失败'
+        if (audio.error) {
+          if (audio.error.code === 4) {
+            errorMsg = '不支持的音频格式'
+          } else if (audio.error.code === 3) {
+            errorMsg = '音频解码失败'
+          } else if (audio.error.code === 2) {
+            errorMsg = '网络错误，请检查网络连接'
+          } else if (audio.error.code === 1) {
+            errorMsg = '音频加载被中止'
+          }
+        }
+        alert(errorMsg + '\nURL: ' + resource.audioUrl)
+        playingAudio.value = null
+        playingId.value = null
+      })
+    })
+    .catch(error => {
+      console.error('播放失败:', error)
+      let errorMsg = '播放失败'
+      if (error.name === 'NotAllowedError') {
+        errorMsg = '浏览器阻止自动播放，请点击播放按钮'
+      } else if (error.name === 'NotSupportedError') {
+        errorMsg = '不支持的音频格式'
+      } else {
+        errorMsg = '无法加载音频，请检查网络或 URL 是否正确'
+      }
+      alert(errorMsg + '\nURL: ' + resource.audioUrl)
+      playingAudio.value = null
+      playingId.value = null
+    })
+}
+
+// 检查资源是否正在播放
+const isPlaying = (resource) => {
+  return playingId.value === resource.id && playingAudio.value !== null
 }
 
 const goBack = () => {
@@ -230,7 +307,7 @@ const goBack = () => {
 
 .back-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .back-btn:hover {
@@ -239,7 +316,7 @@ const goBack = () => {
 
 .login-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .login-btn:hover {
@@ -315,7 +392,7 @@ const goBack = () => {
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000);
   color: white;
   border-color: #667eea;
 }
@@ -347,7 +424,7 @@ const goBack = () => {
 }
 
 .resource-category {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -424,12 +501,20 @@ const goBack = () => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
 }
 
 .action-btn.primary:hover {
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.action-btn.primary.playing {
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+}
+
+.action-btn.primary svg {
+  margin-right: 6px;
 }
 
 .empty-state {

@@ -114,8 +114,12 @@
               </div>
               <div class="resource-actions">
                 <button class="resource-btn primary" @click="playAudio(selectedCityResource)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg v-if="!isPlaying" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                  <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="6" y="4" width="4" height="16"/>
+                    <rect x="14" y="4" width="4" height="16"/>
                   </svg>
                   <span>{{ isPlaying ? '暂停播放' : '播放音频' }}</span>
                 </button>
@@ -176,6 +180,16 @@
             <p class="card-text">{{ item.text }}</p>
             <div class="card-bottom">
               <span class="location">{{ item.city }}</span>
+              <button class="card-play-btn" @click="playLearningAudio(item)" :class="{ playing: isLearningPlaying(item) }">
+                <svg v-if="isLearningPlaying(item)" viewBox="0 0 24 24" fill="currentColor" stroke="none" width="18" height="18">
+                  <rect x="6" y="4" width="4" height="16"/>
+                  <rect x="14" y="4" width="4" height="16"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" stroke="none" width="18" height="18">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <span>{{ isLearningPlaying(item) ? '暂停' : '播放' }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -663,7 +677,7 @@ const end = 'M 0 100 V 0 Q 50 0 100 0 V 100 z'
 // 初始化 GSAP 动画时间轴
 const initTimeline = () => {
   if (!pathRef.value) {
-    console.error('❌ pathRef 未找到')
+    console.error(' pathRef 未找到')
     return false
   }
 
@@ -804,6 +818,91 @@ const isPlaying = ref(false)
 const currentAudio = ref(null)
 const cityResources = ref([])
 
+// 学习卡片音频播放相关
+const learningAudios = ref({})
+
+// 播放学习卡片音频（切换播放/暂停）
+const playLearningAudio = (item) => {
+  if (!item || !item.audio) {
+    alert('该卡片暂无音频')
+    return
+  }
+  
+  // 如果当前卡片正在播放，则暂停
+  if (learningAudios.value[item.id]) {
+    learningAudios.value[item.id].pause()
+    delete learningAudios.value[item.id]
+    return
+  }
+  
+  // 先停止其他所有正在播放的音频
+  Object.keys(learningAudios.value).forEach(key => {
+    if (learningAudios.value[key]) {
+      learningAudios.value[key].pause()
+      delete learningAudios.value[key]
+    }
+  })
+  
+  const audio = new Audio(item.audio)
+  
+  // 先绑定事件，再播放
+  audio.addEventListener('ended', () => {
+    delete learningAudios.value[item.id]
+  })
+  
+  audio.addEventListener('error', (error) => {
+    console.error('音频加载失败:', error)
+    console.error('音频 URL:', item.audio)
+    let errorMsg = '无法加载音频'
+    if (audio.error) {
+      if (audio.error.code === 4) {
+        errorMsg = '不支持的音频格式'
+      } else if (audio.error.code === 3) {
+        errorMsg = '音频解码失败'
+      } else if (audio.error.code === 2) {
+        errorMsg = '网络错误，请检查网络连接'
+      } else if (audio.error.code === 1) {
+        errorMsg = '音频加载被中止'
+      }
+    }
+    alert(errorMsg + '\nURL: ' + item.audio)
+    delete learningAudios.value[item.id]
+  })
+  
+  audio.play()
+    .then(() => {
+      learningAudios.value[item.id] = audio
+    })
+    .catch(error => {
+      console.error('播放失败:', error)
+      console.error('音频 URL:', item.audio)
+      let errorMsg = '播放失败'
+      if (error.name === 'NotAllowedError') {
+        errorMsg = '浏览器阻止自动播放，请点击播放按钮'
+      } else if (error.name === 'NotSupportedError') {
+        errorMsg = '不支持的音频格式'
+      } else {
+        errorMsg = '无法加载音频，请检查网络或 URL 是否正确'
+      }
+      alert(errorMsg + '\nURL: ' + item.audio)
+      delete learningAudios.value[item.id]
+    })
+}
+
+// 检查学习卡片是否正在播放
+const isLearningPlaying = (item) => {
+  const audio = learningAudios.value[item.id]
+  if (audio) {
+    // 如果音频已被暂停或删除，则返回 false
+    if (audio.paused || audio.ended) {
+      delete learningAudios.value[item.id]
+      return false
+    }
+    return true
+  }
+  return false
+}
+
 // 学习资源相关
 const currentCategory = ref('all')
 const currentDifficulty = ref('all')
@@ -846,37 +945,42 @@ const loadCityResources = async () => {
   }
 }
 
-// 播放音频
+// 播放/暂停音频（切换）
 const playAudio = (resource) => {
   if (!resource || !resource.audioUrl) {
     alert('该资源暂无音频')
     return
   }
   
-  if (currentAudio.value) {
+  // 如果正在播放当前资源，则暂停
+  if (isPlaying.value && currentAudio.value) {
     currentAudio.value.pause()
     currentAudio.value = null
     isPlaying.value = false
+    return
   }
   
-  if (!isPlaying.value) {
-    const audio = new Audio(resource.audioUrl)
-    audio.play()
-      .then(() => {
-        currentAudio.value = audio
-        isPlaying.value = true
-        
-        audio.addEventListener('ended', () => {
-          isPlaying.value = false
-          currentAudio.value = null
-        })
+  // 如果有其他音频在播放，先停止
+  if (currentAudio.value) {
+    currentAudio.value.pause()
+    currentAudio.value = null
+  }
+  
+  const audio = new Audio(resource.audioUrl)
+  audio.play()
+    .then(() => {
+      currentAudio.value = audio
+      isPlaying.value = true
+      
+      audio.addEventListener('ended', () => {
+        isPlaying.value = false
+        currentAudio.value = null
       })
-      .catch(error => {
+      
+      audio.addEventListener('error', (error) => {
         console.error('播放失败:', error)
         let errorMsg = '播放失败'
-        if (error.name === 'NotAllowedError') {
-          errorMsg = '浏览器阻止自动播放，请点击播放按钮'
-        } else if (error.name === 'NotSupportedError') {
+        if (error.target.error && error.target.error.code === 4) {
           errorMsg = '不支持的音频格式'
         } else {
           errorMsg = '无法加载音频，请检查网络或 URL 是否正确'
@@ -885,7 +989,21 @@ const playAudio = (resource) => {
         isPlaying.value = false
         currentAudio.value = null
       })
-  }
+    })
+    .catch(error => {
+      console.error('播放失败:', error)
+      let errorMsg = '播放失败'
+      if (error.name === 'NotAllowedError') {
+        errorMsg = '浏览器阻止自动播放，请点击播放按钮'
+      } else if (error.name === 'NotSupportedError') {
+        errorMsg = '不支持的音频格式'
+      } else {
+        errorMsg = '无法加载音频，请检查网络或 URL 是否正确'
+      }
+      alert(errorMsg)
+      isPlaying.value = false
+      currentAudio.value = null
+    })
 }
 
 // 下载资源
@@ -916,7 +1034,8 @@ const learningCards = ref([
     city: '福州',
     category: '词汇',
     level: '初级',
-    text: '早上好 - 早势好\n你好 - 汝好\n谢谢 - 多谢\n对不起 - 对不起\n再见 - 再见'
+    text: '早上好 - 早势好\n你好 - 汝好\n谢谢 - 多谢\n对不起 - 对不起\n再见 - 再见',
+    audio: '/uploads/audio/fuzhou.mp3'
   },
   {
     id: 2,
@@ -924,7 +1043,8 @@ const learningCards = ref([
     city: '福州',
     category: '词汇',
     level: '初级',
-    text: '一 - siok\n二 - no\n三 - sa\n四 - sei\n五 - ngo\n六 - lok\n七 - ts\'ik\n八 - pik\n九 - kau\n十 - sip'
+    text: '一 - siok\n二 - no\n三 - sa\n四 - sei\n五 - ngo\n六 - lok\n七 - ts\'ik\n八 - pik\n九 - kau\n十 - sip',
+    audio: '/uploads/audio/fuzhou.mp3'
   },
   {
     id: 3,
@@ -932,7 +1052,8 @@ const learningCards = ref([
     city: '福州',
     category: '句子',
     level: '中级',
-    text: '你叫什么名字？- 汝叫咩名字？\n我今年二十岁 - 我今年二十岁\n你是哪里人？- 汝是底所人？\n吃饭了吗？- 食糜了未？'
+    text: '你叫什么名字？- 汝叫咩名字？\n我今年二十岁 - 我今年二十岁\n你是哪里人？- 汝是底所人？\n吃饭了吗？- 食糜了未？',
+    audio: '/uploads/audio/fuzhou.mp3'
   },
   {
     id: 4,
@@ -940,7 +1061,8 @@ const learningCards = ref([
     city: '厦门',
     category: '词汇',
     level: '初级',
-    text: '你好 - 哩厚\n谢谢 - 多谢\n对不起 - 拍失礼\n再见 - 再见\n欢迎 - 欢迎'
+    text: '你好 - 哩厚\n谢谢 - 多谢\n对不起 - 拍失礼\n再见 - 再见\n欢迎 - 欢迎',
+    audio: '/uploads/audio/xiamen.mp3'
   },
   {
     id: 5,
@@ -948,7 +1070,8 @@ const learningCards = ref([
     city: '厦门',
     category: '词汇',
     level: '初级',
-    text: '一 - tsit\n二 - nng\n三 - sa\n四 - si\n五 - go\n六 - lak\n七 - ts\'it\n八 - peh\n九 - kau\n十 - tsap'
+    text: '一 - tsit\n二 - nng\n三 - sa\n四 - si\n五 - go\n六 - lak\n七 - ts\'it\n八 - peh\n九 - kau\n十 - tsap',
+    audio: '/uploads/audio/xiamen.mp3'
   },
   {
     id: 6,
@@ -956,7 +1079,8 @@ const learningCards = ref([
     city: '厦门',
     category: '歌曲',
     level: '高级',
-    text: '一时失志不免怨\n一时失志不免叹\n一时失志毋通挂心\n三分天注定\n七分靠打拼\n爱拼才会赢'
+    text: '一时失志不免怨\n一时失志不免叹\n一时失志毋通挂心\n三分天注定\n七分靠打拼\n爱拼才会赢',
+    audio: '/uploads/audio/xiamen.mp3'      
   },
   {
     id: 7,
@@ -964,7 +1088,8 @@ const learningCards = ref([
     city: '泉州',
     category: '词汇',
     level: '初级',
-    text: '奶奶 - 妈祖\n爷爷 - 阿公\n爸爸 - 老父\n妈妈 - 老母\n哥哥 - 阿兄\n姐姐 - 阿姐'
+    text: '奶奶 - 妈祖\n爷爷 - 阿公\n爸爸 - 老父\n妈妈 - 老母\n哥哥 - 阿兄\n姐姐 - 阿姐',
+    audio: '/uploads/audio/quanzhou.mp3'
   },
   {
     id: 8,
@@ -972,7 +1097,8 @@ const learningCards = ref([
     city: '泉州',
     category: '句子',
     level: '中级',
-    text: '吃饭皇帝大 - 食饭皇帝大\n入乡随俗 - 入乡随俗\n一分耕耘一分收获 - 一分耕耘一分收获'
+    text: '吃饭皇帝大 - 食饭皇帝大\n入乡随俗 - 入乡随俗\n一分耕耘一分收获 - 一分耕耘一分收获',
+    audio: '/uploads/audio/quanzhou.mp3'
   },
   {
     id: 9,
@@ -980,7 +1106,8 @@ const learningCards = ref([
     city: '漳州',
     category: '句子',
     level: '中级',
-    text: '早起的鸟儿有虫吃\n滴水穿石\n熟能生巧'
+    text: '早起的鸟儿有虫吃\n滴水穿石\n熟能生巧',
+    audio: '/uploads/audio/zhangzhou.mp3'
   },
   {
     id: 10,
@@ -988,7 +1115,8 @@ const learningCards = ref([
     city: '莆田',
     category: '歌曲',
     level: '高级',
-    text: '莆田戏文选段\n传统艺术精华\n代代相传'
+    text: '莆田戏文选段\n传统艺术精华\n代代相传',
+    audio: '/uploads/audio/putian.mp3'
   }
 ])
 
@@ -1566,7 +1694,7 @@ const closeResourceDetail = () => {
 
 // 从 GeoJSON 生成 SVG
 const loadMapData = async () => {
-  try {
+  try {     //获取福建省数据
     const response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/350000_full.json')
     
     if (!response.ok) {
@@ -1575,7 +1703,7 @@ const loadMapData = async () => {
     
     const geoJson = await response.json()
     const features = geoJson.features || []
-    
+    //计算边界
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
     
     features.forEach(feature => {
@@ -1594,7 +1722,7 @@ const loadMapData = async () => {
     const padding = 10
     const rangeX = maxX - minX
     const rangeY = maxY - minY
-    
+    //生成 SVG 路径
     let svgPaths = ''
     let svgLabels = ''
     let processedCount = 0
@@ -2302,7 +2430,7 @@ const initGSAPAnimations = () => {
 }
 
 .badge.category {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #000000, #000000);
   color: white;
 }
 
@@ -2348,6 +2476,36 @@ const initGSAPAnimations = () => {
   color: #888;
 }
 
+.card-play-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-play-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.card-play-btn.playing {
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%);
+}
+
+.card-play-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 .learning-footer {
   text-align: center;
   margin-top: 40px;
@@ -2356,7 +2514,7 @@ const initGSAPAnimations = () => {
 .btn-more {
   padding: 15px 50px;
   background: white;
-  color: #667eea;
+  color: #000000;
   border: 2px solid white;
   border-radius: 30px;
   font-size: 16px;
@@ -2368,7 +2526,7 @@ const initGSAPAnimations = () => {
 
 .btn-more:hover {
   background: white;
-  color: #764ba2;
+  color: #000000;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
 }
@@ -2420,7 +2578,7 @@ const initGSAPAnimations = () => {
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000);
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
@@ -2481,7 +2639,7 @@ const initGSAPAnimations = () => {
 
 .category-badge {
   padding: 6px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-radius: 20px;
   font-size: 13px;
@@ -2557,7 +2715,7 @@ const initGSAPAnimations = () => {
 
 .learn-btn {
   padding: 8px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 20px;
@@ -2581,7 +2739,7 @@ const initGSAPAnimations = () => {
 .more-btn {
   padding: 15px 50px;
   background: white;
-  color: #667eea;
+  color: #000000;
   border: 2px solid white;
   border-radius: 30px;
   font-size: 16px;
@@ -2593,7 +2751,7 @@ const initGSAPAnimations = () => {
 
 .more-btn:hover {
   background: white;
-  color: #764ba2;
+  color: #000000;
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
 }
@@ -2808,7 +2966,7 @@ const initGSAPAnimations = () => {
 
 .modal-close-btn:hover {
   background: white;
-  color: #667eea;
+  color: #000000;
   transform: scale(1.1);
 }
 
@@ -2904,21 +3062,21 @@ const initGSAPAnimations = () => {
 }
 
 .resource-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #000000;
+  color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .resource-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   border-color: transparent;
   color: white;
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .resource-btn.primary:hover {
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 30px rgb(0, 0, 0);
   transform: translateY(-3px);
 }
 
@@ -2990,17 +3148,17 @@ const initGSAPAnimations = () => {
   font-size: 16px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 .upload-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
 }
 
 .gallery-filters {
@@ -3158,12 +3316,12 @@ const initGSAPAnimations = () => {
 
 .rate-btn:hover,
 .comment-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #000000;
+  color: #000000;
 }
 
 .rate-btn.rated {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-color: transparent;
 }
@@ -3220,7 +3378,7 @@ const initGSAPAnimations = () => {
 
 .comment-input input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .comment-input button {
@@ -3228,7 +3386,7 @@ const initGSAPAnimations = () => {
   font-size: 15px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -3237,7 +3395,7 @@ const initGSAPAnimations = () => {
 
 .comment-input button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 /* 第六屏：在线测试 */
@@ -3291,7 +3449,7 @@ const initGSAPAnimations = () => {
   color: #333;
   margin-bottom: 15px;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -3327,7 +3485,7 @@ const initGSAPAnimations = () => {
 .feature-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 .feature-icon {
@@ -3370,7 +3528,7 @@ const initGSAPAnimations = () => {
 .stat-number {
   font-size: 36px;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -3412,14 +3570,14 @@ const initGSAPAnimations = () => {
   font-weight: 800;
   color: #667eea;
   margin-bottom: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .start-quiz-btn {
   padding: 18px 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 40px;
@@ -3427,7 +3585,7 @@ const initGSAPAnimations = () => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   position: relative;
   overflow: hidden;
 }
@@ -3446,7 +3604,7 @@ const initGSAPAnimations = () => {
 
 .start-quiz-btn:hover {
   transform: translateY(-5px) scale(1.05);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
 .start-quiz-btn:hover::after {
@@ -3507,8 +3665,8 @@ const initGSAPAnimations = () => {
 .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
+  border: 4px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #000000;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -3522,7 +3680,7 @@ const initGSAPAnimations = () => {
 .loading-text {
   font-size: 20px;
   font-weight: 600;
-  color: #667eea;
+  color: #000000;
   animation: pulse 1.5s ease infinite;
 }
 
@@ -3587,7 +3745,7 @@ const initGSAPAnimations = () => {
 }
 
 .feature-list li:hover {
-  color: #667eea;
+  color: #000000;
   transform: translateX(10px);
 }
 
@@ -3597,7 +3755,7 @@ const initGSAPAnimations = () => {
 
 .start-btn {
   padding: 15px 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 30px;
@@ -3605,12 +3763,12 @@ const initGSAPAnimations = () => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
 .start-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
 }
 
 .section-image {
@@ -3747,8 +3905,8 @@ const initGSAPAnimations = () => {
 
 .custom-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  border-color: #000000;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
 }
 
 .question-count-selector {
@@ -3770,15 +3928,15 @@ const initGSAPAnimations = () => {
 }
 
 .count-btn:hover {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  border-color: #000000;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .count-btn.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #000000;
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .records-section {
@@ -3817,7 +3975,7 @@ const initGSAPAnimations = () => {
 }
 
 .records-list::-webkit-scrollbar-thumb {
-  background: #667eea;
+  background: #000000;
   border-radius: 3px;
 }
 
@@ -3830,8 +3988,8 @@ const initGSAPAnimations = () => {
 }
 
 .record-item:hover {
-  border-color: #667eea;
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+  border-color: #000000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   transform: translateX(5px);
 }
 
@@ -3846,7 +4004,7 @@ const initGSAPAnimations = () => {
 
 .record-city {
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   font-size: 16px;
 }
 
@@ -3935,9 +4093,9 @@ const initGSAPAnimations = () => {
 .quiz-city-label {
   font-size: 18px;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
@@ -3946,7 +4104,7 @@ const initGSAPAnimations = () => {
   font-weight: 700;
   color: #333;
   padding: 8px 16px;
-  background: rgba(118, 75, 162, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
@@ -3963,7 +4121,7 @@ const initGSAPAnimations = () => {
 
 .progress {
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 10px;
 }
@@ -3988,13 +4146,13 @@ const initGSAPAnimations = () => {
 }
 
 .question-category {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .question-difficulty {
@@ -4046,16 +4204,16 @@ const initGSAPAnimations = () => {
   left: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000        100%);
   opacity: 0;
   transition: opacity 0.3s;
 }
 
 .option-item:hover:not(.locked) {
-  border-color: #667eea;
+  border-color: #000000;
   background: #f5f5ff;
   transform: translateX(5px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .option-item:hover:not(.locked)::before {
@@ -4063,9 +4221,9 @@ const initGSAPAnimations = () => {
 }
 
 .option-item.selected {
-  border-color: #667eea;
+  border-color: #000000;
   background: #e8e8ff;
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
 
 .option-item.selected::before {
@@ -4118,14 +4276,14 @@ const initGSAPAnimations = () => {
   height: 32px;
   border-radius: 8px;
   font-weight: 700;
-  color: #667eea;
+  color: #000000;
   font-size: 15px;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
 .option-item.selected .option-key {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
   color: white;
 }
 
@@ -4151,7 +4309,7 @@ const initGSAPAnimations = () => {
   padding: 25px;
   background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
   border-radius: 12px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #000000;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -4234,13 +4392,13 @@ const initGSAPAnimations = () => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .action-btn.primary:hover:not(:disabled) {
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   transform: translateY(-3px);
 }
 
@@ -4326,7 +4484,7 @@ const initGSAPAnimations = () => {
   transform: translate(-50%, -50%);
   font-size: 48px;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -4386,7 +4544,7 @@ const initGSAPAnimations = () => {
 .detail-value.level {
   color: #667eea;
   font-size: 18px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -4732,7 +4890,7 @@ const initGSAPAnimations = () => {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .form-error {
@@ -4747,7 +4905,7 @@ const initGSAPAnimations = () => {
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -4759,7 +4917,7 @@ const initGSAPAnimations = () => {
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 15px rgba(252, 252, 252, 0.4);
 }
 
 .modal-footer {
@@ -4772,7 +4930,7 @@ const initGSAPAnimations = () => {
 }
 
 .modal-footer a {
-  color: #667eea;
+  color: #000000;
   text-decoration: none;
   font-weight: 600;
   margin-left: 5px;
@@ -4848,11 +5006,11 @@ const initGSAPAnimations = () => {
 }
 
 .tooltip-title {
-  color: #667eea;
+  color: #000000;
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #000000;
   padding-bottom: 5px;
 }
 

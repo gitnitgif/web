@@ -1,0 +1,1 @@
+import{r as t}from"./user-Be-rn02j.js";const o=(r,e=10)=>t({url:`/quiz/random/${r}`,method:"get",params:{limit:e}}),u=r=>t({url:"/quiz/submit",method:"post",data:r}),m=r=>t({url:`/quiz/records/${r}`,method:"get"});export{m as a,o as g,u as s};

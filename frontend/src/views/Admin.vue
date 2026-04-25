@@ -3,28 +3,23 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="logo">
-        <h2>🎵 方言保护</h2>
+        <h2>方言保护</h2>
         <p>管理平台</p>
       </div>
       <nav class="menu">
         <div class="menu-item active" @click="activeMenu = 'dashboard'">
-          <span class="icon">📊</span>
           <span>控制台</span>
         </div>
         <div class="menu-item" @click="activeMenu = 'audio-review'">
-          <span class="icon">🎧</span>
           <span>音频审核</span>
         </div>
         <div class="menu-item" @click="activeMenu = 'resource-manage'">
-          <span class="icon">📚</span>
           <span>资源管理</span>
         </div>
         <div class="menu-item" @click="activeMenu = 'user-manage'">
-          <span class="icon">👥</span>
           <span>用户管理</span>
         </div>
         <div class="menu-item" @click="activeMenu = 'system'">
-          <span class="icon">⚙️</span>
           <span>系统设置</span>
         </div>
       </nav>
@@ -50,7 +45,6 @@
         <!-- 控制台 -->
         <div v-show="activeMenu === 'dashboard'" class="dashboard">
           <div class="welcome-card">
-            <div class="avatar">👋</div>
             <div class="text">
               <h3>晚上好，{{ username }}，愿你天黑有灯，下雨有伞。</h3>
               <p>福建方言保护平台管理后台，共同守护方言文化</p>
@@ -59,28 +53,24 @@
 
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-icon">📊</div>
               <div class="stat-info">
                 <div class="stat-value">{{ dbStatus.userCount || 0 }}</div>
                 <div class="stat-label">用户总数</div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">🎵</div>
               <div class="stat-info">
                 <div class="stat-value">{{ audioStats.pending }}</div>
                 <div class="stat-label">待审核音频</div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">✅</div>
               <div class="stat-info">
                 <div class="stat-value">{{ audioStats.approved }}</div>
                 <div class="stat-label">已通过音频</div>
               </div>
             </div>
             <div class="stat-card">
-              <div class="stat-icon">❌</div>
               <div class="stat-info">
                 <div class="stat-value">{{ audioStats.rejected }}</div>
                 <div class="stat-label">已拒绝音频</div>
@@ -92,7 +82,7 @@
             <!-- 新增用户 -->
             <div class="info-card">
               <div class="card-header">
-                <h3>� 新增用户</h3>
+                <h3>新增用户</h3>
               </div>
               <div class="info-content">
                 <div class="info-row">
@@ -117,7 +107,7 @@
             <!-- 新增音频 -->
             <div class="info-card">
               <div class="card-header">
-                <h3>🎵 新增音频</h3>
+                <h3>新增音频</h3>
               </div>
               <div class="info-content">
                 <div class="info-row">
@@ -144,7 +134,7 @@
         <!-- 音频审核 -->
         <div v-show="activeMenu === 'audio-review'" class="audio-review">
           <div class="page-header">
-            <h2>🎵 音频审核管理</h2>
+            <h2>音频审核管理</h2>
             <p>管理用户上传的方言音频，进行审核操作</p>
           </div>
 
@@ -185,17 +175,17 @@
                   <span :class="['status-badge', audio.status]">{{ getStatusText(audio.status) }}</span>
                 </div>
                 <div class="audio-meta">
-                  <span>📍 {{ getCityName(audio.city) }}</span>
-                  <span>🎤 {{ audio.dialectType }}</span>
-                  <span>👤 {{ audio.uploader }}</span>
+                  <span>{{ getCityName(audio.city) }}</span>
+                  <span>{{ audio.dialectType }}</span>
+                  <span>{{ audio.uploader }}</span>
                 </div>
               </div>
               <p class="audio-desc">{{ audio.description || '无描述' }}</p>
               <audio :src="audio.audioUrl" controls class="audio-player"></audio>
               
               <div v-if="audio.status === 'pending'" class="audio-actions">
-                <button class="btn-approve" @click="approveAudio(audio)">✅ 通过</button>
-                <button class="btn-reject" @click="rejectAudio(audio)">❌ 拒绝</button>
+                <button class="btn-approve" @click="approveAudio(audio)"> 通过</button>
+                <button class="btn-reject" @click="rejectAudio(audio)">拒绝</button>
               </div>
               
               <div v-if="audio.status === 'rejected'" class="rejection-reason">
@@ -208,12 +198,12 @@
         <!-- 资源管理 -->
         <div v-show="activeMenu === 'resource-manage'" class="resource-manage">
           <div class="page-header">
-            <h2>📚 方言资源管理</h2>
+            <h2>方言资源管理</h2>
             <p>管理各城市的方言资源，配置音频和下载链接</p>
           </div>
 
-          <button @click="showAddResource" class="add-btn">➕ 添加资源</button>
-          <button @click="loadResources" class="refresh-btn">🔄 刷新列表</button>
+          <button @click="showAddResource" class="add-btn"> 添加资源</button>
+          <button @click="loadResources" class="refresh-btn"> 刷新列表</button>
 
           <div class="resource-list">
             <div v-for="city in cityResources" :key="city.id" class="resource-item">
@@ -224,7 +214,7 @@
                 </div>
                 <div class="resource-status">
                   <span :class="['status-badge', city.audioUrl ? 'success' : 'warning']">
-                    {{ city.audioUrl ? '✅ 有音频' : '⚠️ 无音频' }}
+                    {{ city.audioUrl ? ' 有音频' : ' 无音频' }}
                   </span>
                   <button @click="deleteResourceConfirm(city)" class="delete-resource-btn">🗑️ 删除</button>
                 </div>
@@ -282,8 +272,10 @@
                   <small class="form-tip">示例：/fuzhou.png 或 https://example.com/image.jpg</small>
                 </div>
                 <div class="form-actions">
-                  <button @click="previewAudio(city)" class="preview-btn">🔊 试听</button>
-                  <button @click="saveResource(city)" class="save-btn">💾 保存</button>
+                  <button @click="toggleAudio(city)" class="preview-btn" :class="{ playing: isPlaying(city) }">
+                    {{ isPlaying(city) ? '⏸ 暂停' : '▶ 试听' }}
+                  </button>
+                  <button @click="saveResource(city)" class="save-btn"> 保存</button>
                 </div>
               </div>
             </div>
@@ -293,11 +285,11 @@
         <!-- 用户管理 -->
         <div v-show="activeMenu === 'user-manage'" class="user-manage">
           <div class="page-header">
-            <h2>👥 用户管理</h2>
+            <h2> 用户管理</h2>
             <p>管理系统用户，包括删除用户和重置密码</p>
           </div>
 
-          <button @click="loadUsers" class="refresh-btn">🔄 刷新用户列表</button>
+          <button @click="loadUsers" class="refresh-btn">刷新用户列表</button>
 
           <div class="table-container">
             <table class="data-table">
@@ -334,7 +326,7 @@
         <!-- 系统设置 -->
         <div v-show="activeMenu === 'system'" class="system-settings">
           <div class="page-header">
-            <h2>🔧 调试工具</h2>
+            <h2> 调试工具</h2>
             <p>系统调试和测试工具</p>
           </div>
 
@@ -516,11 +508,29 @@ const loadResources = async () => {
   }
 }
 
-// 试听音频
-const previewAudio = (city) => {
+// 音频播放控制
+const currentAudio = ref(null)
+const playingCity = ref(null)
+
+// 试听音频（切换播放/暂停）
+const toggleAudio = (city) => {
   if (!city.audioUrl) {
     alert('请先填写音频 URL')
     return
+  }
+  
+  // 如果正在播放当前城市的音频，则暂停
+  if (playingCity.value === city.code && currentAudio.value) {
+    currentAudio.value.pause()
+    currentAudio.value = null
+    playingCity.value = null
+    return
+  }
+  
+  // 如果有其他音频在播放，先停止
+  if (currentAudio.value) {
+    currentAudio.value.pause()
+    currentAudio.value = null
   }
   
   try {
@@ -528,12 +538,32 @@ const previewAudio = (city) => {
     audio.play()
       .then(() => {
         console.log('音频开始播放:', city.name)
-        // 显示播放提示
-        const originalText = city.name
-        city.name = originalText + ' 🔊'
-        setTimeout(() => {
-          city.name = originalText
-        }, 2000)
+        currentAudio.value = audio
+        playingCity.value = city.code
+        
+        // 监听播放结束
+        audio.onended = () => {
+          currentAudio.value = null
+          playingCity.value = null
+        }
+        
+        // 监听播放错误
+        audio.onerror = (error) => {
+          console.error('播放失败:', error)
+          let errorMsg = '播放失败'
+          if (error.name === 'NotAllowedError') {
+            errorMsg = '浏览器阻止自动播放，请点击按钮后试听'
+          } else if (error.name === 'NotSupportedError') {
+            errorMsg = '不支持的音频格式'
+          } else if (error.name === 'AbortError') {
+            errorMsg = '播放被中断'
+          } else {
+            errorMsg = '请检查 URL 是否正确或网络是否畅通'
+          }
+          alert(errorMsg)
+          currentAudio.value = null
+          playingCity.value = null
+        }
       })
       .catch(error => {
         console.error('播放失败:', error)
@@ -548,11 +578,20 @@ const previewAudio = (city) => {
           errorMsg = '请检查 URL 是否正确或网络是否畅通'
         }
         alert(errorMsg)
+        currentAudio.value = null
+        playingCity.value = null
       })
   } catch (error) {
     console.error('音频加载失败:', error)
     alert('无法加载音频：' + error.message)
+    currentAudio.value = null
+    playingCity.value = null
   }
+}
+
+// 检查城市是否正在播放
+const isPlaying = (city) => {
+  return playingCity.value === city.code && currentAudio.value !== null
 }
 
 // 保存资源（新增或更新）
@@ -859,7 +898,7 @@ onMounted(() => {
 /* 左侧导航栏 */
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
+  background: linear-gradient(180deg, #3d5085 0%, #000000 100%);
   color: white;
   padding: 20px 0;
   position: fixed;
@@ -979,7 +1018,7 @@ onMounted(() => {
 
 /* 欢迎卡片 */
 .welcome-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #ffffff 100%);
   border-radius: 12px;
   padding: 30px;
   display: flex;
@@ -1101,7 +1140,7 @@ onMounted(() => {
 }
 
 .info-row .value.highlight {
-  color: #3b82f6;
+  color: #000000;
   font-weight: 600;
   font-size: 18px;
 }
@@ -1158,14 +1197,14 @@ onMounted(() => {
 }
 
 .tab-btn:hover {
-  color: #3b82f6;
-  border-color: #3b82f6;
+  color: #000000;
+  border-color: #000000;
 }
 
 .tab-btn.active {
-  background: #3b82f6;
+  background: #000000;
   color: white;
-  border-color: #3b82f6;
+  border-color: #000000;
 }
 
 /* 音频列表 */
@@ -1315,7 +1354,7 @@ onMounted(() => {
 }
 
 .reset-btn:hover {
-  background: #40a9ff;
+  background: #000000;
 }
 
 .delete-btn {
@@ -1329,7 +1368,7 @@ onMounted(() => {
 
 .refresh-btn {
   padding: 10px 20px;
-  background: #3b82f6;
+  background: #000000;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1340,7 +1379,7 @@ onMounted(() => {
 }
 
 .refresh-btn:hover {
-  background: #2563eb;
+  background: #000000;
 }
 
 .no-data {
@@ -1471,7 +1510,7 @@ onMounted(() => {
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #000000;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
@@ -1500,12 +1539,30 @@ onMounted(() => {
 }
 
 .preview-btn {
-  background: #1890ff;
+  background: #000000;
   color: white;
 }
 
 .preview-btn:hover {
-  background: #40a9ff;
+  background: #000000;
+}
+
+.preview-btn.playing {
+  background: #ff4d4f;
+  animation: pulse 1.5s infinite;
+}
+
+.preview-btn.playing:hover {
+  background: #ff7875;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .save-btn {
@@ -1526,7 +1583,7 @@ onMounted(() => {
 
 .debug-btn {
   padding: 10px 20px;
-  background: #3b82f6;
+  background: #000000;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1536,7 +1593,7 @@ onMounted(() => {
 }
 
 .debug-btn:hover {
-  background: #2563eb;
+  background: #000000;
 }
 
 .debug-message {
@@ -1637,12 +1694,12 @@ onMounted(() => {
 }
 
 .confirm-btn {
-  background: #3b82f6;
+  background: #000000;
   color: white;
 }
 
 .confirm-btn:hover {
-  background: #2563eb;
+  background: #000000;
 }
 
 /* 空状态 */

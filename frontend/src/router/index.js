@@ -16,11 +16,6 @@ const routes = [
     component: () => import('@/views/Home.vue')
   },
   {
-    path: '/register',      // 注册页面
-    name: 'Register',
-    component: () => import('@/views/Register.vue')
-  },
-  {
     path: '/home',          // 首页（福建省地图）
     name: 'Home',
     component: () => import('@/views/Home.vue')
@@ -54,11 +49,6 @@ const routes = [
     path: '/community',     // 交流互动页面（评论）
     name: 'Community',
     component: () => import('@/views/Community.vue')
-  },
-  {
-    path: '/quiz',          // 在线测试页面
-    name: 'Quiz',
-    component: () => import('@/views/Quiz.vue')
   },
   {
     path: '/audio-upload',  // 音频上传页面

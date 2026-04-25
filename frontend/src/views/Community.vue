@@ -230,7 +230,7 @@ const goBack = () => {
 <style scoped>
 .community-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   padding-bottom: 40px;
 }
 
@@ -275,7 +275,7 @@ const goBack = () => {
 
 .back-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .back-btn:hover {
@@ -284,7 +284,7 @@ const goBack = () => {
 
 .login-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .login-btn:hover {
@@ -362,7 +362,7 @@ const goBack = () => {
 
 .selector-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .comment-form {
@@ -392,7 +392,7 @@ const goBack = () => {
 
 .comment-form textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .form-actions {
@@ -402,7 +402,7 @@ const goBack = () => {
 
 .submit-btn {
   padding: 10px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border: none;
   border-radius: 6px;
@@ -436,7 +436,7 @@ const goBack = () => {
 }
 
 .login-hint a {
-  color: #667eea;
+  color: #000000;
   text-decoration: none;
   font-weight: 600;
 }
@@ -476,7 +476,7 @@ const goBack = () => {
 
 .comment-author {
   font-weight: 600;
-  color: #667eea;
+  color: #000000;
   font-size: 14px;
 }
 
@@ -513,7 +513,7 @@ const goBack = () => {
 
 .like-btn:hover {
   background: #f5f5f5;
-  color: #667eea;
+  color: #000000;
 }
 
 .delete-btn:hover {

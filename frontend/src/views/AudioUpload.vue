@@ -281,7 +281,7 @@ const submitUpload = async () => {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -296,7 +296,7 @@ const submitUpload = async () => {
 }
 
 .upload-area:hover {
-  border-color: #667eea;
+  border-color: #000000;
   background: #f0f4ff;
 }
 
@@ -370,7 +370,7 @@ const submitUpload = async () => {
   font-size: 18px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;

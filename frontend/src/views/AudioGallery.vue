@@ -290,7 +290,7 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -458,12 +458,12 @@ onMounted(() => {
 
 .rate-btn:hover,
 .comment-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #000000;
+  color: #000000;
 }
 
 .rate-btn.rated {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
   border-color: transparent;
 }
@@ -520,7 +520,7 @@ onMounted(() => {
 
 .comment-input input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .comment-input button {
@@ -528,7 +528,7 @@ onMounted(() => {
   font-size: 15px;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   border: none;
   border-radius: 12px;
   cursor: pointer;

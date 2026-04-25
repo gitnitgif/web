@@ -199,7 +199,7 @@ const goBack = () => {
 <style scoped>
 .folk-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
 }
 
 .folk-header {
@@ -243,7 +243,7 @@ const goBack = () => {
 
 .back-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .back-btn:hover {
@@ -252,7 +252,7 @@ const goBack = () => {
 
 .login-btn {
   background: white;
-  color: #667eea;
+  color: #000000;
 }
 
 .login-btn:hover {
@@ -328,9 +328,9 @@ const goBack = () => {
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
   color: white;
-  border-color: #667eea;
+  border-color: #000000;
 }
 
 .resource-list {
@@ -360,7 +360,7 @@ const goBack = () => {
 }
 
 .resource-type {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #764ba2 100%);
   color: white;
   padding: 4px 12px;
   border-radius: 12px;
@@ -381,7 +381,7 @@ const goBack = () => {
 }
 
 .resource-author {
-  color: #667eea;
+  color: #000000;
   font-size: 14px;
   margin-bottom: 10px;
   font-weight: 500;
@@ -443,7 +443,7 @@ const goBack = () => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #000000 100%);
   color: white;
 }
 
