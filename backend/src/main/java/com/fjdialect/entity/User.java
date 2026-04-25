@@ -7,15 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * 用户实体类
- * 对应数据库表：user
- * 用途：存储系统用户信息，包括管理员和普通用户
- * 关联：
- * - 被 AuthController 用于登录注册
- * - 被 AdminController 用于用户管理
- * - 被 UserService 处理业务逻辑
- */
 @Data
 @TableName("user")
 public class User {

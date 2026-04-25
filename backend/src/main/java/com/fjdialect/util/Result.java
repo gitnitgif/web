@@ -1,7 +1,7 @@
 package com.fjdialect.util;
 
 import lombok.Data;
-
+//接口工具
 @Data
 public class Result<T> {
     private int code;

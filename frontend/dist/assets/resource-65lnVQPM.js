@@ -1,1 +1,0 @@
-import{r}from"./user-Be-rn02j.js";const t=()=>r({url:"/admin/resource/list",method:"get"}),o=e=>r({url:"/admin/resource/save",method:"post",data:e}),u=e=>r({url:"/admin/resource/update",method:"post",data:e}),a=e=>r({url:`/admin/resource/delete/${e}`,method:"post"});export{a as d,t as g,o as s,u};

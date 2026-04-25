@@ -18,7 +18,7 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public void register(User user) {
+    public void register(User user) {           //用户注册方法
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
         String encodedPassword = PasswordEncoderUtil.encode(user.getPassword());
@@ -29,20 +29,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByUsername(String username) {
         return userMapper.selectByUsername(username);
-    }
+    }       //查询用户名方法
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() {       //查询所有用户
         return userMapper.selectList(new LambdaQueryWrapper<User>().orderByDesc(User::getCreateTime));
     }
 
     @Override
     public void deleteUser(Long id) {
         userMapper.deleteById(id);
-    }
+    }       //删除方法
 
     @Override
-    public void resetPassword(Long id, String newPassword) {
+    public void resetPassword(Long id, String newPassword) {        //重置密码方法
         User user = userMapper.selectById(id);
         if (user != null) {
             String encodedPassword = PasswordEncoderUtil.encode(newPassword);
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserInfo(User user) {
+    public void updateUserInfo(User user) {         //更新信息方法
         User existingUser = userMapper.selectById(user.getId());
         if (existingUser != null) {
             // 只更新允许修改的字段

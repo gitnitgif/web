@@ -17,22 +17,22 @@ public class CommentServiceImpl implements CommentService {
     private CommentMapper commentMapper;
 
     @Override
-    public List<Comment> getCommentsByResource(String resourceType, Long resourceId) {
+    public List<Comment> getCommentsByResource(String resourceType, Long resourceId) {      //根据类型+id检索
         return commentMapper.selectByResourceId(resourceType, resourceId);
     }
 
     @Override
-    public List<Comment> getCommentsByUserId(Long userId) {
+    public List<Comment> getCommentsByUserId(Long userId) {         //根据用户id检索
         return commentMapper.selectByUserId(userId);
     }
 
     @Override
-    public Comment getCommentById(Long id) {
+    public Comment getCommentById(Long id) {            //根据评论id检索
         return commentMapper.selectById(id);
     }
 
     @Override
-    public void addComment(Comment comment) {
+    public void addComment(Comment comment) {       //新增评论
         comment.setCreateTime(LocalDateTime.now());
         comment.setUpdateTime(LocalDateTime.now());
         comment.setLikeCount(0);
@@ -40,12 +40,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(Long id) {
+    public void deleteComment(Long id) {        //删除评论
         commentMapper.deleteById(id);
     }
 
     @Override
-    public void likeComment(Long id) {
+    public void likeComment(Long id) {          //累计点赞数
         Comment comment = commentMapper.selectById(id);
         if (comment != null) {
             comment.setLikeCount(comment.getLikeCount() + 1);
